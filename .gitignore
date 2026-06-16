@@ -58,3 +58,49 @@ next-env.d.ts
 .env.development.local
 .env.test.local
 .env.production.local
+
+# Media files (large videos, audio)
+# Use Git LFS for video files or store separately
+public/videos/*.mp4
+public/videos/*.mov
+public/videos/*.avi
+public/videos/*.mkv
+public/audios/*.mp3
+public/audios/*.wav
+
+# Build artifacts
+*.tsbuildinfo
+.turbopack/
+
+# Package manager cache
+.yarn/cache/
+.pnpm-store/
+
+# OS specific
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.backup
+*~
+*.swp
+*.swo
+
+# IDE specific
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+.idea/*
+*.sublime-project
+*.sublime-workspace
+
+# Python & yt-dlp cache
+__pycache__/
+*.py[cod]
+*$py.class
+.python-version
+yt-dlp-cache/

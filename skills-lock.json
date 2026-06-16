@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "skills": {
+    "gsap-interactions": {
+      "source": "RollySeth/AI-Taste-Skill",
+      "sourceType": "github",
+      "skillPath": "gsap-interactions/SKILL.md",
+      "computedHash": "906c3c5280e061af11fd15a5e17da4ea0ebbaaddae0b9571601dfc20a589a011"
+    }
+  }
+}
