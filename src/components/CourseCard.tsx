@@ -106,6 +106,7 @@ export default function CourseCard({
           </div>
           <a
             href="#contacto"
+            onClick={handleContactClick}
             className="flex items-center justify-center w-10 h-10 rounded-xl bg-white/5 border border-white/10 group-hover:bg-primary group-hover:border-primary text-slate-300 group-hover:text-white transition-all duration-300"
           >
             <ArrowUpRight className="w-4.5 h-4.5 group-hover:rotate-45 transition-transform duration-300" />

@@ -19,6 +19,7 @@ import PricingCard from "@/components/PricingCard";
 import CoursesCarousel from "@/components/CoursesCarousel";
 import Hero3DScene from "@/components/Hero3DScene";
 import VideoScrubSection from "@/components/VideoScrubSection";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 import {
   useHeroEntrance,
   useScrollReveals,
@@ -54,25 +55,28 @@ export default function Home() {
     return () => clearInterval(interval);
   }, []);
 
-  // Terminal lines animation
-  useGSAP(() => {
-    gsap.utils.toArray<HTMLElement>(".terminal-line").forEach((line, i) => {
-      gsap.from(line, {
-        opacity: 0,
-        x: -10,
-        duration: 0.4,
-        delay: i * 0.05,
-        ease: "power2.out",
-      });
-    });
-  });
+  // Terminal lines animation is handled by useHeroEntrance hook
+  // to avoid duplicate animations
 
   const handleSubscribe = (e: React.FormEvent) => {
     e.preventDefault();
-    if (email.trim()) {
-      setSubmitted(true);
-      setEmail("");
+    const trimmedEmail = email.trim();
+
+    // Validar email format (RFC 5321 compliant)
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(trimmedEmail)) {
+      console.warn('Invalid email format');
+      return;
     }
+
+    // Limitar a 254 caracteres (RFC 5321 limit)
+    if (trimmedEmail.length > 254) {
+      console.warn('Email too long');
+      return;
+    }
+
+    setSubmitted(true);
+    setEmail("");
   };
 
   return (
@@ -90,9 +94,11 @@ export default function Home() {
 
         {/* HERO SECTION */}
         <section className="relative pt-12 pb-24 md:pt-20 md:pb-32 overflow-hidden" ref={heroRef}>
-          {/* 3D Background Scene */}
+          {/* 3D Background Scene with Error Boundary */}
           <div className="absolute inset-0 w-full h-full -z-10">
-            <Hero3DScene />
+            <ErrorBoundary>
+              <Hero3DScene />
+            </ErrorBoundary>
           </div>
 
           <div className="max-w-7xl mx-auto px-6 md:px-8 grid grid-cols-1 lg:grid-cols-12 gap-16 items-center relative z-10">

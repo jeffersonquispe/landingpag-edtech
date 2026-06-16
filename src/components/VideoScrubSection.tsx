@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useGSAP } from '@gsap/react';
@@ -11,12 +11,21 @@ export default function VideoScrubSection() {
   const sectionRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
+  const [videoError, setVideoError] = useState(false);
 
   useGSAP(
     () => {
       if (!videoRef.current) return;
 
       const video = videoRef.current;
+
+      // Handle video errors
+      const handleVideoError = () => {
+        console.warn('Video failed to load');
+        setVideoError(true);
+      };
+
+      video.addEventListener('error', handleVideoError);
 
       // Wait for video metadata
       const onLoadedMetadata = () => {
@@ -70,6 +79,7 @@ export default function VideoScrubSection() {
 
       return () => {
         video.removeEventListener('loadedmetadata', onLoadedMetadata);
+        video.removeEventListener('error', handleVideoError);
       };
     },
     { scope: sectionRef }
@@ -83,20 +93,37 @@ export default function VideoScrubSection() {
       {/* Fallback Background Gradient */}
       <div className="absolute inset-0 bg-gradient-to-br from-[#06080d] via-[#0a0f1f] to-[#06080d] z-0" />
 
+      {/* Video Error Fallback */}
+      {videoError ? (
+        <div className="absolute inset-0 flex items-center justify-center z-20 bg-black/80">
+          <div className="text-center">
+            <svg className="w-16 h-16 text-red-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4v.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <h3 className="text-white text-xl font-bold mb-2">Video no disponible</h3>
+            <p className="text-slate-400 text-sm">No pudimos cargar el video en este momento.</p>
+          </div>
+        </div>
+      ) : null}
+
       {/* Video Element from YouTube */}
-      <video
-        ref={videoRef}
-        muted
-        playsInline
-        preload="auto"
-        className="absolute inset-0 w-full h-full object-cover"
-        poster="https://img.youtube.com/vi/18FeGXyB-sI/maxresdefault.jpg"
-      >
-        <source src="/videos/scrub-video.mp4" type="video/mp4" />
-      </video>
+      {!videoError ? (
+        <video
+          ref={videoRef}
+          muted
+          playsInline
+          preload="auto"
+          className="absolute inset-0 w-full h-full object-cover"
+          poster="https://img.youtube.com/vi/18FeGXyB-sI/maxresdefault.jpg"
+        >
+          <source src="/videos/scrub-video.mp4" type="video/mp4" />
+        </video>
+      ) : null}
 
       {/* Gradient Overlay */}
-      <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent z-10" />
+      {!videoError ? (
+        <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent z-10" />
+      ) : null}
 
       {/* Content Overlay */}
       <div

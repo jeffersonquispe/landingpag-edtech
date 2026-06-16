@@ -168,10 +168,15 @@ export default function Hero3DScene() {
     let targetRotationX = 0;
     let targetRotationY = 0;
     let time = 0;
+    let lastMouseUpdateTime = 0;
 
-    // Mouse tracking
+    // Mouse tracking with throttle (16ms = ~60fps)
     const handleMouseMove = (e: MouseEvent) => {
       if (!container) return;
+      const now = Date.now();
+      if (now - lastMouseUpdateTime < 16) return;
+      lastMouseUpdateTime = now;
+
       const rect = container.getBoundingClientRect();
       mouseX = (e.clientX - rect.left) / rect.width - 0.5;
       mouseY = (e.clientY - rect.top) / rect.height - 0.5;
@@ -220,8 +225,9 @@ export default function Hero3DScene() {
     });
 
     // Animation loop
+    let animationId: number;
     const animate = () => {
-      requestAnimationFrame(animate);
+      animationId = requestAnimationFrame(animate);
       time += 0.016;
 
       if (mesh) {
@@ -242,6 +248,7 @@ export default function Hero3DScene() {
 
     // Cleanup
     return () => {
+      cancelAnimationFrame(animationId);
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('resize', handleResize);
       if (container && renderer.domElement.parentNode === container) {

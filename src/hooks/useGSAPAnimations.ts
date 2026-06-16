@@ -83,6 +83,19 @@ export function useHeroEntrance() {
         },
         0
       );
+
+      // Terminal lines animation (unified in hero timeline)
+      tl.from(
+        '.terminal-line',
+        {
+          opacity: 0,
+          x: -10,
+          duration: 0.4,
+          stagger: 0.05,
+          ease: 'power2.out',
+        },
+        0.2
+      );
     },
     { scope: containerRef }
   );
@@ -148,6 +161,7 @@ export function useScrollReveals() {
 
 export function useCardMicroInteractions() {
   const containerRef = useRef(null);
+  const handlersRef = useRef<Map<HTMLElement, {enter: () => void, leave: () => void}>>(new Map());
 
   useGSAP(
     () => {
@@ -157,24 +171,39 @@ export function useCardMicroInteractions() {
       );
 
       interactiveEls.forEach((el) => {
-        el.addEventListener('mouseenter', () => {
+        const handleEnter = () => {
           gsap.to(el, {
             y: -4,
             duration: 0.3,
             ease: 'power2.out',
             overwrite: 'auto',
           });
-        });
+        };
 
-        el.addEventListener('mouseleave', () => {
+        const handleLeave = () => {
           gsap.to(el, {
             y: 0,
             duration: 0.3,
             ease: 'power2.out',
             overwrite: 'auto',
           });
-        });
+        };
+
+        // Store handlers for cleanup
+        handlersRef.current?.set(el, { enter: handleEnter, leave: handleLeave });
+
+        el.addEventListener('mouseenter', handleEnter as EventListener);
+        el.addEventListener('mouseleave', handleLeave as EventListener);
       });
+
+      // Cleanup
+      return () => {
+        handlersRef.current?.forEach((handlers, el) => {
+          el.removeEventListener('mouseenter', handlers.enter as EventListener);
+          el.removeEventListener('mouseleave', handlers.leave as EventListener);
+        });
+        handlersRef.current?.clear();
+      };
 
       // Button scale on click
       gsap.utils.toArray<HTMLElement>('button, a[role="button"]').forEach((btn) => {
